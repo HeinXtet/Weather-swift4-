@@ -1,0 +1,20 @@
+PODS:
+  - Alamofire (4.7.3)
+  - KYDrawerController (2.0.4)
+
+DEPENDENCIES:
+  - Alamofire (~> 4.7)
+  - KYDrawerController
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - Alamofire
+    - KYDrawerController
+
+SPEC CHECKSUMS:
+  Alamofire: c7287b6e5d7da964a70935e5db17046b7fde6568
+  KYDrawerController: cf5839877c442132123e9d482f458821026defdf
+
+PODFILE CHECKSUM: 427f8b92425dea166c4703df3f6e9dba9b86653c
+
+COCOAPODS: 1.5.3
