@@ -9,15 +9,28 @@
 import UIKit
 import MapKit
 import CoreLocation
+import CoreData
 
 class MapVC: UIViewController {
     
+    @IBAction func fetchUserLocationBtnPressed(_ sender: Any) {
+        mapView.setUserTrackingMode(MKUserTrackingMode.follow, animated: true)
+    }
     @IBOutlet weak var mapView: MKMapView!
     let regionRaidus = 1000 as Double
 
     let locationManager = CLLocationManager()
     
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
+    @IBAction func saveBtnPress(_ sender: Any) {
+    }
+    @IBOutlet weak var userLocationView: GradientView!
+    @IBOutlet weak var userLocationViewHeight: NSLayoutConstraint!
+    
+    @IBOutlet weak var userSaveBtn: UIButton!
+    @IBOutlet weak var userLocationLb: UILabel!
+    @IBOutlet weak var addressLb: UILabel!
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
@@ -32,6 +45,7 @@ class MapVC: UIViewController {
         singletap.numberOfTapsRequired = 1
         self.mapView.addGestureRecognizer(singletap)
         
+    
         let doubleTap = UITapGestureRecognizer(target: self, action: #selector(dropPin))
         doubleTap.numberOfTapsRequired = 2
         self.mapView.addGestureRecognizer(doubleTap)
@@ -52,20 +66,31 @@ class MapVC: UIViewController {
         let coordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
         let region = MKCoordinateRegionMakeWithDistance(coordinate, regionRaidus * 2.0, regionRaidus * 2.0)
         mapView.setRegion(region, animated : true)
-    
-        let artwork = Artwork(title: "",
-                              locationName: "Waikiki Gateway Park",
-                              discipline: "Sculpture",
-                              coordinate: CLLocationCoordinate2D(latitude: coordinate.latitude, longitude:coordinate.longitude))
-        mapView.addAnnotation(artwork)
         getPlace(coordinate: coordinate)
+        showUserLocationView()
+    }
+    
+    private func showUserLocationView(){
+        UIView.animate(withDuration: 3) {
+            self.userLocationView.alpha = 1.0
+            self.userLocationViewHeight.constant = 150
+        }
+    }
+    
+    private func hideUserLocationView(){
+        UIView.animate(withDuration: 3) {
+            self.userLocationView.alpha = 0
+            self.userLocationViewHeight.constant = 0
+        }
     }
     
     @objc func animateDown(){
        // print("animate down ")
+        hideUserLocationView()
     }
     
     func getPlace(coordinate : CLLocationCoordinate2D)  {
+        var userLocaitonStr  = "Unknown Location!"
         let geoCoder = CLGeocoder()
         let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
         
@@ -80,29 +105,42 @@ class MapVC: UIViewController {
             
             // Location name
             if let locationName = placeMark.addressDictionary!["Name"] as? NSString {
-                print(locationName)
+                
+                print("locationName \(locationName)")
             }
             
             // Street address
             if let street = placeMark.addressDictionary!["Thoroughfare"] as? NSString {
-                print(street)
+                userLocaitonStr = ""
+                print("street \(street)")
+                userLocaitonStr.append("\(street)")
             }
             
             // City
             if let city = placeMark.addressDictionary!["City"] as? NSString {
-                print(city)
+                print("city \(city)")
+                userLocaitonStr.append(",\(city)")
             }
             
             // Zip code
             if let zip = placeMark.addressDictionary!["ZIP"] as? NSString {
-                print(zip)
+                print("zip \(zip)")
             }
             
             // Country
             if let country = placeMark.addressDictionary!["Country"] as? NSString {
-                print(country)
+                print("country \(country),")
+                userLocaitonStr.append("\n\(country)")
             }
             
+            self.addressLb.text = userLocaitonStr
+            self.userLocationLb.text = "\(coordinate.latitude) , \(coordinate.longitude)"
+            
+            let artwork = Artwork(title: "",
+                                  locationName: "Waikiki Gateway Park",
+                                  discipline: "Sculpture",
+                                  coordinate: CLLocationCoordinate2D(latitude: coordinate.latitude, longitude:coordinate.longitude))
+            self.mapView.addAnnotation(artwork)
         })
     }
   
